@@ -8,11 +8,12 @@ public class AgodaClient {
 		
 		ctx.compress("C:\\Users\\Siva\\Desktop\\test-forder\\input", 
 		 "C:\\Users\\Siva\\Desktop\\test-forder\\output", 
-		 1048576);
+		 524288000);
 		
 		ctx.decompress("C:\\Users\\Siva\\Desktop\\test-forder\\output", 
 				"C:\\Users\\Siva\\Desktop\\test-forder\\de-output");
 
+		System.out.println(Runtime.getRuntime().maxMemory());
 	}
 
 }

@@ -5,24 +5,26 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.zip.DataFormatException;
-import java.util.zip.Deflater;
 import java.util.zip.Inflater;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
 public class ZipFileReader {
-	private Inflater decompressor = new Inflater();
-	byte[] outbuffer = new byte[8 * 1024];
 
 	public void read(File file, String destination) throws ZipException,
 			IOException, DataFormatException {
 		ZipFile zf = new ZipFile(file);
 		Enumeration<? extends ZipEntry> e = zf.entries();
-		while (e.hasMoreElements()) {
-			ZipEntry entry = e.nextElement();
+		List<? extends ZipEntry> list = Collections.list(e);
+		Collections.sort(list, new SplitFileComparator());
+		for (ZipEntry entry : list) {
+
 			if (entry.isDirectory()) {
 				continue;
 			} else {
@@ -42,10 +44,6 @@ public class ZipFileReader {
 						zf.getInputStream(entry));
 
 				while ((b = bis.read(inbuffer)) != -1) {
-//					decompressor.setInput(inbuffer, 0, b);
-//					int dlen = decompressor.inflate(outbuffer);
-//					bos.write(outbuffer, 0, dlen);
-					
 					bos.write(inbuffer, 0, b);
 					bos.flush();
 				}
@@ -54,6 +52,22 @@ public class ZipFileReader {
 				bos.close();
 				fos.close();
 			}
+
 		}
+	}
+
+	private class SplitFileComparator implements Comparator<ZipEntry> {
+
+		@Override
+		public int compare(ZipEntry ze1, ZipEntry ze2) {
+			String s1 = ze1.getName();
+			String s2 = ze2.getName();
+			int i1 = Integer
+					.parseInt(s1.substring(s1.lastIndexOf('.') + 4));
+			int i2 = Integer
+					.parseInt(s2.substring(s2.lastIndexOf('.') + 4));
+			return i1 - i2;
+		}
+
 	}
 }

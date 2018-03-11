@@ -7,14 +7,10 @@ import java.util.zip.DataFormatException;
 
 public class ZipCompressionStrategy implements CompressionStrategy {
 
-	public ZipCompressionStrategy() {
-	}
-
 	@Override
 	public void compress(String source, String destination, int max_size) {
 
 		try {
-			// Validator.compression(source, destination, max_size);
 
 			File input = new File(source);
 			List<File> iFiles = CompressionUtility.getSourceFiles(input);
@@ -28,9 +24,6 @@ public class ZipCompressionStrategy implements CompressionStrategy {
 			SplitCounter counter = new SplitCounter();
 
 			for (File f : iFiles) {
-				System.out.println("Zipping " + f.getAbsolutePath());
-				// TODO Chunks
-				// File size more than the JVM size
 				String entry = f.getAbsolutePath().substring(
 						source.length() + 1);
 				ZipFileWriter zw = new ZipFileWriter(f, zipfileName, max_size,

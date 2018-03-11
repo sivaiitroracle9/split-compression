@@ -86,7 +86,7 @@ public class ZipFileWriter {
 
 	private File newSplitFile() {
 		File newFile = new File(zipfilename
-				+ String.valueOf(counter.getValue()));
+				+ String.format("%010d", counter.getValue()));
 		counter.inc();
 		return newFile;
 	}
