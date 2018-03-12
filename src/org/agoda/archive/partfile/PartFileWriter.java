@@ -1,10 +1,10 @@
-package org.agoda.compression;
+package org.agoda.archive.partfile;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-public abstract class SplitFileWriter {
+public abstract class PartFileWriter {
 	protected int splitLength;
 	private String filename;
 	protected long byteswritten = 0;
@@ -12,7 +12,7 @@ public abstract class SplitFileWriter {
 	private FileOutputStream fos;
 	private boolean splitFileOpen = false;
 
-	public SplitFileWriter(String filename, SplitCounter counter, int splitLength) {
+	public PartFileWriter(String filename, SplitCounter counter, int splitLength) {
 		this.filename = filename;
 		this.counter = counter;
 		this.splitLength = splitLength;
@@ -43,6 +43,7 @@ public abstract class SplitFileWriter {
 				+ String.format("%010d", counter.getValue()));
 		counter.inc();
 		splitFileOpen = true;
+		byteswritten = 0;
 		fos = new FileOutputStream(newFile);
 		return newFile;
 	}

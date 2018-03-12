@@ -1,4 +1,4 @@
-package org.agoda.compression;
+package org.agoda.archive;
 
 import java.io.File;
 import java.util.ArrayList;

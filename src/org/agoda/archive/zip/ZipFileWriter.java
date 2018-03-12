@@ -1,4 +1,4 @@
-package org.agoda.compression;
+package org.agoda.archive.zip;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -7,27 +7,31 @@ import java.util.zip.Deflater;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-public class ZipFileWriter extends SplitFileWriter {
+import org.agoda.archive.partfile.PartFileWriter;
+import org.agoda.archive.partfile.SplitCounter;
+
+public class ZipFileWriter extends PartFileWriter {
 	private ZipOutputStream zos;
 	private Deflater compressor = new Deflater();
-	byte[] outbuffer = new byte[CompressionConstants.BUFF_SIZE];
 	boolean isZipOSOpen = false;
+	private int BUFF_SIZE = 8*1024;
+	byte[] outbuffer;
 
 	public ZipFileWriter(String zipFilename, int splitLength,
 			SplitCounter counter) {
 		super(zipFilename, counter, splitLength);
-
-		this.compressor = new Deflater();
+		outbuffer = new byte[BUFF_SIZE];
 	}
 
 	public void write(File sourceFile, String entry) {
 		FileInputStream fis = null;
+		compressor = new Deflater();
 		try {
 			createCompressedFile();
 			putEntry(entry);
-			
+
 			fis = new FileInputStream(sourceFile);
-			byte[] inbuffer = new byte[CompressionConstants.BUFF_SIZE];
+			byte[] inbuffer = new byte[BUFF_SIZE];
 			int len = 0;
 			while ((len = fis.read(inbuffer)) > 0) {
 				write(inbuffer, len, entry);
@@ -40,11 +44,11 @@ public class ZipFileWriter extends SplitFileWriter {
 			try {
 				if (fis != null)
 					fis.close();
-				
+
 				closeEntry();
-				
+
 				closeCompressedFile();
-			
+
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -56,7 +60,7 @@ public class ZipFileWriter extends SplitFileWriter {
 	public void write(byte[] buffer, int len, String entry) throws IOException {
 		int clen = compressLength(buffer, len);
 		if (byteswritten + clen > getSplitLength()) {
-			startNewSplitFile();
+			createCompressedFile();
 			putEntry(entry);
 		}
 
@@ -86,6 +90,7 @@ public class ZipFileWriter extends SplitFileWriter {
 		if (isZipOSOpen) {
 			zos.close();
 		}
+		isZipOSOpen = false;
 		closeSplitFile();
 	}
 

@@ -1,7 +1,5 @@
-package org.agoda.compression;
+package org.agoda.archive;
 
-import java.io.IOException;
-import java.util.zip.ZipException;
 
 public interface CompressionStrategy {
 

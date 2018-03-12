@@ -1,4 +1,4 @@
-package org.agoda.compression;
+package org.agoda.archive.partfile;
 
 public class SplitCounter {
 	private int value = 0;

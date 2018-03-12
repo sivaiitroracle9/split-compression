@@ -1,6 +1,8 @@
-package org.agoda.compression;
+package org.agoda;
 
-public class CompressionContext {
+import org.agoda.archive.CompressionStrategy;
+
+public class ArchiveContext {
 
 	private CompressionStrategy strategy;
 
@@ -9,12 +11,10 @@ public class CompressionContext {
 	}
 
 	public void compress(String source, String destination, int max_size) throws IllegalAccessException {
-		// Validator.compression(source, destination, max_size);
 		strategy.compress(source, destination, max_size);
 	}
 
 	public void decompress(String source, String destination) throws IllegalAccessException {
-		// Validator.decompression();
 		strategy.decompress(source, destination);
 	}
 }

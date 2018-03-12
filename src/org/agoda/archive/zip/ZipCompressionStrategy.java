@@ -1,9 +1,13 @@
-package org.agoda.compression;
+package org.agoda.archive.zip;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.zip.DataFormatException;
+
+import org.agoda.archive.CompressionStrategy;
+import org.agoda.archive.CompressionUtility;
+import org.agoda.archive.partfile.SplitCounter;
 
 public class ZipCompressionStrategy implements CompressionStrategy {
 
@@ -41,10 +45,9 @@ public class ZipCompressionStrategy implements CompressionStrategy {
 		if (!destDir.exists())
 			destDir.mkdir();
 		destination = destDir.getAbsolutePath();
-
+		ZipFileReader zr = new ZipFileReader();
 		try {
 			for (File f : iFiles) {
-				ZipFileReader zr = new ZipFileReader();
 				zr.read(f, destination);
 			}
 		} catch (IOException | DataFormatException e) {
