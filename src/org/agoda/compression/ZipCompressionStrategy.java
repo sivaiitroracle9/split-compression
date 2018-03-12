@@ -10,29 +10,21 @@ public class ZipCompressionStrategy implements CompressionStrategy {
 	@Override
 	public void compress(String source, String destination, int max_size) {
 
-		try {
+		File input = new File(source);
+		List<File> iFiles = CompressionUtility.getSourceFiles(input);
 
-			File input = new File(source);
-			List<File> iFiles = CompressionUtility.getSourceFiles(input);
+		String zipname = source.substring(source
+				.lastIndexOf(File.separator));
 
-			String zipname = source.substring(source
-					.lastIndexOf(File.separator));
+		String zipfileName = new File(destination, zipname + ".zip")
+				.getAbsolutePath();
 
-			String zipfileName = new File(destination, zipname + ".zip")
-					.getAbsolutePath();
-
-			SplitCounter counter = new SplitCounter();
-
-			for (File f : iFiles) {
-				String entry = f.getAbsolutePath().substring(
-						source.length() + 1);
-				ZipFileWriter zw = new ZipFileWriter(f, zipfileName, max_size,
-						entry, counter);
-				zw.write();
-			}
-
-		} catch (IOException e) {
-			e.printStackTrace();
+		ZipFileWriter zw = new ZipFileWriter(zipfileName, max_size,
+				new SplitCounter());
+		for (File f : iFiles) {
+			String entry = f.getAbsolutePath().substring(
+					source.length() + 1);
+			zw.write(f, entry);
 		}
 
 	}
@@ -41,16 +33,17 @@ public class ZipCompressionStrategy implements CompressionStrategy {
 	public void decompress(String source, String destination) {
 		File input = new File(source);
 		List<File> iFiles = CompressionUtility.getSourceFiles(input);
-		
+
 		String fn = iFiles.get(0).getName();
-		String decompressDir = iFiles.get(0).getName().substring(0, fn.lastIndexOf(".zip"));
+		String decompressDir = iFiles.get(0).getName()
+				.substring(0, fn.lastIndexOf(".zip"));
 		File destDir = new File(destination, decompressDir);
-		if(!destDir.exists())
+		if (!destDir.exists())
 			destDir.mkdir();
-		destination = destDir.getAbsolutePath(); 
-		
+		destination = destDir.getAbsolutePath();
+
 		try {
-			for(File f : iFiles) {
+			for (File f : iFiles) {
 				ZipFileReader zr = new ZipFileReader();
 				zr.read(f, destination);
 			}

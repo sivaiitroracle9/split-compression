@@ -2,78 +2,66 @@ package org.agoda.compression;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.zip.Deflater;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-public class ZipFileWriter {
-	private int splitLength;
-	private String zipfilename;
-	private String entry;
-	private File sourceFile;
-	private long byteswritten = 0;
-	private SplitCounter counter;
-	private FileOutputStream fos;
+public class ZipFileWriter extends SplitFileWriter {
 	private ZipOutputStream zos;
-	private ZipEntry ze;
-	private boolean entryOpened = false;
 	private Deflater compressor = new Deflater();
 	byte[] outbuffer = new byte[CompressionConstants.BUFF_SIZE];
+	boolean isZipOSOpen = false;
 
-	public ZipFileWriter(File sourceFile, String zipFilename, int splitLength,
-			String entry, SplitCounter counter) {
-		this.sourceFile = sourceFile;
-		this.zipfilename = zipFilename;
-		this.splitLength = splitLength;
-		this.entry = entry;
-		this.counter = counter;
+	public ZipFileWriter(String zipFilename, int splitLength,
+			SplitCounter counter) {
+		super(zipFilename, counter, splitLength);
+
+		this.compressor = new Deflater();
 	}
 
-	public void write() throws IOException {
+	public void write(File sourceFile, String entry) {
+		FileInputStream fis = null;
+		try {
+			createCompressedFile();
+			putEntry(entry);
+			
+			fis = new FileInputStream(sourceFile);
+			byte[] inbuffer = new byte[CompressionConstants.BUFF_SIZE];
+			int len = 0;
+			while ((len = fis.read(inbuffer)) > 0) {
+				write(inbuffer, len, entry);
+			}
 
-		FileInputStream fis = new FileInputStream(sourceFile);
-		int len = 0;
-		byte[] inbuffer = new byte[CompressionConstants.BUFF_SIZE];
-		while ((len = fis.read(inbuffer)) > 0) {
-			write(inbuffer, len);
-		}
-		if (entryOpened) {
-			close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+
+			try {
+				if (fis != null)
+					fis.close();
+				
+				closeEntry();
+				
+				closeCompressedFile();
+			
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+
 		}
 		compressor.end();
 	}
 
-	public void write(byte[] buff, int len) throws IOException {
-		int clen = compressLength(buff, len);
-
-		if (!entryOpened) {
-			open();
-		} else if (byteswritten + clen > splitLength) {
-			close();
-			open();
-			byteswritten = 0;
+	public void write(byte[] buffer, int len, String entry) throws IOException {
+		int clen = compressLength(buffer, len);
+		if (byteswritten + clen > getSplitLength()) {
+			startNewSplitFile();
+			putEntry(entry);
 		}
-		
-		zos.write(buff, 0, len);
-		zos.flush();
-		byteswritten += clen;
-	}
 
-	private void open() throws IOException {
-		fos = new FileOutputStream(newSplitFile());
-		zos = new ZipOutputStream(fos);
-		ze = new ZipEntry(entry);
-		zos.putNextEntry(ze);
-		entryOpened = true;
-	}
-
-	private void close() throws IOException {
-		entryOpened = false;
-		zos.closeEntry();
-		zos.close();
-		fos.close();
+		zos.write(buffer, 0, len);
+		updateBytesWritten(clen);
 	}
 
 	private int compressLength(byte[] buff, int len) {
@@ -84,10 +72,29 @@ public class ZipFileWriter {
 		return clen;
 	}
 
-	private File newSplitFile() {
-		File newFile = new File(zipfilename
-				+ String.format("%010d", counter.getValue()));
-		counter.inc();
-		return newFile;
+	public void createCompressedFile() throws IOException {
+
+		if (isZipOSOpen) {
+			closeCompressedFile();
+		}
+		startNewSplitFile();
+		zos = new ZipOutputStream(getSplitFileOutputStream());
+		isZipOSOpen = true;
 	}
+
+	public void closeCompressedFile() throws IOException {
+		if (isZipOSOpen) {
+			zos.close();
+		}
+		closeSplitFile();
+	}
+
+	public void putEntry(String entry) throws IOException {
+		zos.putNextEntry(new ZipEntry(entry));
+	}
+
+	public void closeEntry() throws IOException {
+		zos.closeEntry();
+	}
+
 }
