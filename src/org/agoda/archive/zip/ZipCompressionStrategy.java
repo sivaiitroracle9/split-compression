@@ -1,12 +1,11 @@
 package org.agoda.archive.zip;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
-import java.util.zip.DataFormatException;
 
 import org.agoda.archive.CompressionStrategy;
 import org.agoda.archive.CompressionUtility;
+import org.agoda.archive.FileConstants;
 import org.agoda.archive.partfile.SplitCounter;
 
 public class ZipCompressionStrategy implements CompressionStrategy {
@@ -20,7 +19,7 @@ public class ZipCompressionStrategy implements CompressionStrategy {
 		String zipname = source.substring(source
 				.lastIndexOf(File.separator));
 
-		String zipfileName = new File(destination, zipname + ".zip")
+		String zipfileName = new File(destination, zipname + FileConstants.FILE_EXT_ZIP)
 				.getAbsolutePath();
 
 		ZipFileWriter zw = new ZipFileWriter(zipfileName, max_size,
@@ -40,18 +39,13 @@ public class ZipCompressionStrategy implements CompressionStrategy {
 
 		String fn = iFiles.get(0).getName();
 		String decompressDir = iFiles.get(0).getName()
-				.substring(0, fn.lastIndexOf(".zip"));
+				.substring(0, fn.lastIndexOf(FileConstants.FILE_EXT_ZIP));
 		File destDir = new File(destination, decompressDir);
 		if (!destDir.exists())
 			destDir.mkdir();
-		destination = destDir.getAbsolutePath();
 		ZipFileReader zr = new ZipFileReader();
-		try {
-			for (File f : iFiles) {
-				zr.read(f, destination);
-			}
-		} catch (IOException | DataFormatException e) {
-			e.printStackTrace();
+		for (File f : iFiles) {
+			zr.read(f, destDir.getAbsolutePath());
 		}
 
 	}
