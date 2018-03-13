@@ -7,14 +7,14 @@ import java.util.zip.Deflater;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import org.agoda.archive.partfile.PartFileWriter;
-import org.agoda.archive.partfile.SplitCounter;
+import org.agoda.partfile.PartFileWriter;
+import org.agoda.partfile.SplitCounter;
 
 public class ZipFileWriter extends PartFileWriter {
 	private ZipOutputStream zos;
 	private Deflater compressor = new Deflater();
 	boolean isZipOSOpen = false;
-	private int BUFF_SIZE = 8*1024;
+	private int BUFF_SIZE = 8192;
 	byte[] outbuffer;
 
 	public ZipFileWriter(String zipFilename, int splitLength,

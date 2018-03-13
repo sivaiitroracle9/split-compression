@@ -6,14 +6,6 @@ import java.util.List;
 
 public class CompressionUtility {
 	private static List<File> sourceFiles;
-		
-	public static boolean canRead(File f) {
-		return f.canRead();
-	}
-	
-	public static boolean canWrite(File f) {
-		return f.canWrite();
-	}
 
 	public static boolean isDirectory(File file) {
 		if (file == null) {

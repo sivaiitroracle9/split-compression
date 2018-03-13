@@ -1,4 +1,4 @@
-package org.agoda.archive.partfile;
+package org.agoda.partfile;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -11,7 +11,7 @@ public abstract class PartFileMerger {
 
 	private FileOutputStream fos;
 	private BufferedOutputStream bos;
-	private int BUFF_SIZE = 1024;
+	private int BUFF_SIZE = 8192;
 
 	public void createDirectories(File outfile) {
 		outfile.getParentFile().mkdirs();
@@ -27,10 +27,9 @@ public abstract class PartFileMerger {
 			bos.write(inbuffer, 0, b);
 			bos.flush();
 		}
-		bos.close();
-		fos.close();
+		closePartFileOutputStream();
 	}
-	
+
 	private FileOutputStream createPartFileOutputStream(File outfile,
 			boolean append) throws FileNotFoundException {
 		if (outfile.exists())
@@ -38,5 +37,22 @@ public abstract class PartFileMerger {
 		else
 			fos = new FileOutputStream(outfile);
 		return this.fos;
+	}
+
+	public void closePartFileOutputStream() {
+		if (bos != null)
+			try {
+				bos.close();
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+		if (fos != null) {
+			try {
+				fos.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
 	}
 }

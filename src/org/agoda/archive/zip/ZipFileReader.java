@@ -11,7 +11,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import org.agoda.archive.FileConstants;
-import org.agoda.archive.partfile.PartFileMerger;
+import org.agoda.partfile.PartFileMerger;
 
 public class ZipFileReader extends PartFileMerger {
 
@@ -24,7 +24,7 @@ public class ZipFileReader extends PartFileMerger {
 		
 			Enumeration<? extends ZipEntry> e = zf.entries();
 			List<? extends ZipEntry> list = Collections.list(e);
-			Collections.sort(list, new SplitFileComparator());
+			Collections.sort(list, new PartFileComparator());
 			for (ZipEntry entry : list) {
 
 				if (entry.isDirectory()) {
@@ -55,7 +55,7 @@ public class ZipFileReader extends PartFileMerger {
 		}
 	}
 
-	private class SplitFileComparator implements Comparator<ZipEntry> {
+	private class PartFileComparator implements Comparator<ZipEntry> {
 
 		@Override
 		public int compare(ZipEntry ze1, ZipEntry ze2) {

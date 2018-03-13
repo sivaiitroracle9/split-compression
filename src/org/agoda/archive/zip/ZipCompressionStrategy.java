@@ -6,13 +6,16 @@ import java.util.List;
 import org.agoda.archive.CompressionStrategy;
 import org.agoda.archive.CompressionUtility;
 import org.agoda.archive.FileConstants;
-import org.agoda.archive.partfile.SplitCounter;
+import org.agoda.archive.exception.ArchiveException;
+import org.agoda.archive.exception.UnArchiveException;
+import org.agoda.partfile.SplitCounter;
 
 public class ZipCompressionStrategy implements CompressionStrategy {
 
 	@Override
-	public void compress(String source, String destination, int max_size) {
-
+	public void compress(String source, String destination, int max_size) throws ArchiveException {
+		ZipValidator.compress(source, destination, max_size);
+		
 		File input = new File(source);
 		List<File> iFiles = CompressionUtility.getSourceFiles(input);
 
@@ -33,7 +36,8 @@ public class ZipCompressionStrategy implements CompressionStrategy {
 	}
 
 	@Override
-	public void decompress(String source, String destination) {
+	public void decompress(String source, String destination) throws UnArchiveException {
+		ZipValidator.decompress(source, destination);
 		File input = new File(source);
 		List<File> iFiles = CompressionUtility.getSourceFiles(input);
 
