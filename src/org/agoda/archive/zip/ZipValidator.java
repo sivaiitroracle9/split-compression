@@ -1,7 +1,8 @@
 package org.agoda.archive.zip;
 
-import org.agoda.archive.ArchiveException;
 import org.agoda.archive.FileConstants;
+import org.agoda.archive.exception.ArchiveException;
+
 
 public class ZipValidator {
 
